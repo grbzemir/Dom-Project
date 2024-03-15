@@ -8,7 +8,8 @@ const input = document.querySelector("#txtTaskName");
 const btnAddNewTask = document.querySelector("#btnAddNewTask");
 const btnDeleteAll = document.querySelector("#btnDeleteAll");
 const taskList = document.querySelector("#task-list");
-const items = ["Todo 1","Todo 2","Todo 3","Todo 4","Todo 5","Todo 6"];
+// const items = ["Todo 1","Todo 2","Todo 3","Todo 4","Todo 5","Todo 6"];
+let todos;
 
 //load items
 
@@ -30,13 +31,56 @@ function eventListeners()
 function loadItems()
 
 {
-    
+        todos = getItemsFromLS();
         items.forEach(function(item)
         {
             createItem(item);
         });
     
     
+}
+
+function getItemsFromLS()
+
+{
+
+    if(localStorage.getItem("todos") === null)
+
+    {
+
+        todos = [];
+
+
+    }
+
+    else
+    {
+        todos = JSON.parse(localStorage.getItem("todos"));
+    }
+
+    return todos;
+}
+
+//set item to local storage
+function setItemToLS(newTodo)
+
+{
+
+    todos = getItemsFromLS();
+    todos.push(newTodo);
+    localStorage.setItem("todos",JSON.stringify(todos));
+
+
+}
+
+
+function createItem(newTodo)
+
+{
+
+    //Li olusturma
+
+
 }
 
 function createItem(text)
@@ -76,6 +120,8 @@ function addNewItem(e)
 
     createItem(input.value);
 
+    setItemToLS(input.value);
+
 
     input.value = "";
 
@@ -101,6 +147,7 @@ function deleteItem(e)
     {
     
     e.target.parentElement.parentElement.remove();
+    deleteTodoFromStorage(e.target.parentElement.parentElement.textContent);
     
             }
     
@@ -109,6 +156,30 @@ function deleteItem(e)
     e.preventDefault(); // a etiketinin default işlevini kaldırır.
     
     } 
+
+
+    function deleteTodoFromStorage(deletetodo)
+    {
+
+        let todos = getItemsFromLS();
+
+        todos.forEach(function(todo,index))
+        {
+
+            if(todo === deletetodo)
+
+            {
+               
+                todos.splice(index,1); //bulundugu andan itibaren 1 tane eleman silecek
+
+
+            }
+        };
+
+        localStorage.setItem("todos",JSON.stringify(todos));
+
+
+    }
 
 
     // tüm elemanları silmek
@@ -120,14 +191,19 @@ function deleteItem(e)
 
         if(confirm("Are you sure you want to delete all items?"))
         {
-            taskList.childNodes.forEach(function(item)
+            while(taskList.firstChild)
+
             {
-                if(item.nodeType === 1)
-                {
-                    item.remove();
-                }
-            });
-            taskList.innerHTML = "";
+
+                taskList.removeChild(taskList.firstChild);
+
+            }
+
+            localStorage.clear();
+
+
+
+            // taskList.innerHTML = "";
         }
     }
 
